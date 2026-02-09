@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Consumo Eléctrico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Inter y Plus Jakarta Sans para un toque más corporativo -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Iconos Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        /* Efecto sutil de gradiente animado en el fondo */
+        .animated-bg {
+            background: linear-gradient(-45deg, #f1f5f9, #e2e8f0, #f8fafc, #edf2f7);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="animated-bg flex items-center justify-center min-h-screen p-4 text-slate-800">
+
+    <!-- Tarjeta Principal con efecto Glassmorphism sutil -->
+    <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)] p-8 w-full max-w-md border border-white/50 relative overflow-hidden">
+        
+        <!-- Decoración de fondo (círculo difuso) -->
+        <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-indigo-50 blur-3xl -z-10 opacity-60"></div>
+
+        <!-- Encabezado -->
+        <div class="mb-8 text-center relative z-10">
+            <div class="inline-flex items-center justify-center p-3 bg-indigo-50 rounded-2xl mb-4 text-indigo-600 shadow-sm ring-1 ring-indigo-100">
+                <i data-lucide="zap" class="w-6 h-6"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Estimador Energético</h1>
+            <p class="text-slate-500 mt-2 font-medium">Calcula tu proyección mensual</p>
+        </div>
+
+        <!-- Formulario -->
+        <div class="space-y-6 relative z-10">
+            
+            <!-- Input Group: Aparatos -->
+            <div class="group">
+                <label for="aparatos" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">
+                    Dispositivos
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="monitor-smartphone" class="w-5 h-5"></i>
+                    </div>
+                    <input type="number" id="aparatos" placeholder="Total de electrodomésticos" min="0"
+                        class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all font-medium text-slate-700 placeholder:text-slate-400">
+                </div>
+            </div>
+
+            <!-- Input Group: Horas -->
+            <div class="group">
+                <label for="horas" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">
+                    Uso Diario
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="clock" class="w-5 h-5"></i>
+                    </div>
+                    <input type="number" id="horas" placeholder="Horas promedio al día" min="0" step="0.5"
+                        class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all font-medium text-slate-700 placeholder:text-slate-400">
+                </div>
+            </div>
+
+            <!-- Botón Calcular -->
+            <button onclick="calcularConsumo()" 
+                class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-slate-900/20 transition-all duration-200 transform active:scale-[0.98] flex items-center justify-center gap-2 group">
+                <span>Calcular Proyección</span>
+                <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+            </button>
+        </div>
+
+        <!-- Resultado -->
+        <div id="resultado-container" class="mt-8 hidden opacity-0 transition-all duration-500 ease-out transform translate-y-4">
+            <div class="relative bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-6 text-white shadow-xl shadow-indigo-500/30 overflow-hidden">
+                <!-- Decoración fondo resultado -->
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+                
+                <div class="relative z-10 flex flex-col items-center">
+                    <p class="text-indigo-100 text-sm font-medium uppercase tracking-wide mb-1">Consumo Estimado</p>
+                    <div class="flex items-baseline gap-1">
+                        <span id="resultado-valor" class="text-4xl font-bold tracking-tight">0.00</span>
+                        <span class="text-xl font-medium text-indigo-200">kWh/mes</span>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-indigo-400/30 w-full flex justify-between items-center text-xs text-indigo-100">
+                        <span class="flex items-center gap-1 opacity-80">
+                            <i data-lucide="info" class="w-3 h-3"></i> Factor base: 0.5
+                        </span>
+                        <span class="font-medium bg-white/20 px-2 py-1 rounded-md">Mensual</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Inicializar iconos Lucide
+        lucide.createIcons();
+
+        function calcularConsumo() {
+            const inputAparatos = document.getElementById('aparatos');
+            const inputHoras = document.getElementById('horas');
+            const contenedorResultado = document.getElementById('resultado-container');
+            const textoValor = document.getElementById('resultado-valor');
+
+            // Resetear estilos de error
+            inputAparatos.classList.remove('border-red-500', 'ring-red-500');
+            inputHoras.classList.remove('border-red-500', 'ring-red-500');
+
+            if (inputAparatos.value === '' || inputHoras.value === '') {
+                // Feedback visual de error
+                if(inputAparatos.value === '') inputAparatos.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                if(inputHoras.value === '') inputHoras.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                return;
+            }
+
+            const aparatos = parseInt(inputAparatos.value);
+            const horas = parseFloat(inputHoras.value);
+            const factor = 0.5; 
+            const consumoMensual = aparatos * horas * factor * 30;
+
+            // Animación de conteo para el número
+            animateValue(textoValor, 0, consumoMensual, 800);
+            
+            // Mostrar resultado con animación
+            contenedorResultado.classList.remove('hidden');
+            // Pequeño delay para permitir que el navegador quite el hidden antes de animar opacidad
+            setTimeout(() => {
+                contenedorResultado.classList.remove('opacity-0', 'translate-y-4');
+            }, 10);
+        }
+
+        // Función para animar los números (efecto "contador")
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = progress * (end - start) + start;
+                obj.innerHTML = value.toFixed(2);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+    </script>
+</body>
+</html>
